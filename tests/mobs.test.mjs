@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import * as THREE from '../dist/three.module.js';
+import {createMobSystem} from '../dist/mobs.js';
+globalThis.document={createElement(){return {className:'',classList:{toggle(){}},setAttribute(){},textContent:''}},body:{append(){}}};
+let p={x:0,y:2.5,z:0},respawns=0;const mob=createMobSystem({scene:new THREE.Scene(),groundAt:()=>0,player:()=>p,notice(){},respawn(){respawns++}});
+assert.equal(mob.isEnabled(),false);mob.enable(true);assert.equal(mob.isAlive(),true);assert.equal(mob.state().hp,3);
+let initial=mob.object.position.distanceTo(new THREE.Vector3(0,.9,0));mob.update(1,true,true,null);assert.ok(mob.object.position.distanceTo(new THREE.Vector3(0,.9,0))<initial);
+assert.equal(mob.hit(),true);assert.equal(mob.hit(),false);mob.update(.5,true,true,null);assert.equal(mob.hit(),true);mob.update(.5,true,true,null);assert.equal(mob.hit(),true);assert.equal(mob.isAlive(),false);mob.update(10,true,true,null);assert.equal(mob.isAlive(),true);
+p={x:mob.object.position.x,y:mob.object.position.y+1.15,z:mob.object.position.z};for(let i=0;i<5;i++)mob.update(1.6,true,false,null);assert.equal(respawns,1);
+mob.apply({enabled:false,alive:false,x:0,y:0,z:0,hp:3});assert.equal(mob.isEnabled(),false);mob.apply({enabled:true,alive:true,x:Infinity,y:0,z:0,hp:3});assert.equal(mob.isEnabled(),false);console.log('mob pursuit, damage, cooldown, respawn, and state validation: OK');
