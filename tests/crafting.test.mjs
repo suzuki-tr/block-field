@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {craftResult,RECIPES} from '../dist/crafting.js';
+import {initialStock,MAX_STOCK} from '../dist/inventory.js';
+let stock=initialStock(),before=[...stock],result=craftResult(stock,'planks');
+assert.equal(result.ok,true);assert.equal(result.stock[3],15);assert.equal(result.stock[7],20);assert.deepEqual(stock,before);
+result=craftResult(stock,'bricks');assert.equal(result.ok,true);assert.equal(result.stock[2],14);assert.equal(result.stock[5],15);assert.equal(result.stock[6],20);
+stock[2]=1;before=[...stock];assert.equal(craftResult(stock,'bricks').reason,'materials');assert.deepEqual(stock,before);
+stock=initialStock();stock[7]=MAX_STOCK-3;before=[...stock];assert.equal(craftResult(stock,'planks').reason,'full');assert.deepEqual(stock,before);
+assert.equal(craftResult(stock,'__proto__').reason,'invalid');assert.equal(craftResult([], 'planks').reason,'invalid');assert.equal(RECIPES.length,3);
+console.log('craft recipes, insufficient ingredients, capacity, and atomicity: OK');
